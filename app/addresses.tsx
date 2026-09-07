@@ -1,0 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { api } from "../src/api";
+import { Button, Chip, Icon, StateView } from "../src/components/ui";
+import { colors, radius } from "../src/theme";
+export default function Addresses() { const { t } = useTranslation(); const query = useQuery({ queryKey: ["addresses"], queryFn: api.addresses }); if (query.isLoading) return <StateView state="loading" />; return <ScrollView contentContainerStyle={s.page}>{query.data?.map((a) => <View key={a.id} style={s.card}><View style={s.row}><View style={s.title}><Icon name="home-outline" /><Text style={s.label}>{a.label}</Text></View>{a.isDefault && <Chip>Default</Chip>}</View><Text style={s.name}>{a.recipient} · {a.phone}</Text><Text style={s.body}>{a.line1}{"\n"}{a.city}, {a.state} · {a.pincode}</Text><View style={s.actions}><Button variant="ghost">Edit</Button><Button variant="outline">Remove</Button></View></View>)}<Button>+ Add new address</Button><Text style={s.note}>{t("addresses")} are synchronized after sign-in.</Text></ScrollView>; }
+const s = StyleSheet.create({ page: { padding: 16, gap: 14 }, card: { padding: 18, borderRadius: radius.lg, backgroundColor: colors.white, gap: 10 }, row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, title: { flexDirection: "row", alignItems: "center", gap: 8 }, label: { fontSize: 18, fontWeight: "900", color: colors.text }, name: { fontWeight: "700", color: colors.text }, body: { color: colors.muted, lineHeight: 21 }, actions: { flexDirection: "row", gap: 10 }, note: { color: colors.muted, fontSize: 12, textAlign: "center" } });

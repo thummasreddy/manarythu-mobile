@@ -1,0 +1,38 @@
+{
+  "name": "manarythu-mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^14.1.0",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@tanstack/react-query": "^5.66.8",
+    "expo": "~53.0.0",
+    "expo-constants": "~17.1.6",
+    "expo-font": "~13.3.1",
+    "expo-linking": "~7.1.5",
+    "expo-localization": "~16.1.5",
+    "expo-router": "~5.1.0",
+    "expo-secure-store": "~14.2.3",
+    "expo-splash-screen": "~0.30.9",
+    "expo-status-bar": "~2.2.3",
+    "i18next": "^24.2.2",
+    "react": "19.0.0",
+    "react-i18next": "^15.4.1",
+    "react-native": "0.79.2",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/react": "~19.0.10",
+    "typescript": "~5.8.3"
+  },
+  "private": true
+}

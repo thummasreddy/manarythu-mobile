@@ -1,0 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { api } from "../../src/api";
+import { Chip, Icon, ScreenTitle, StateView } from "../../src/components/ui";
+import { colors, radius } from "../../src/theme";
+export default function Orders() { const { t } = useTranslation(); const query = useQuery({ queryKey: ["orders"], queryFn: api.orders }); return <ScrollView contentContainerStyle={s.page}><ScreenTitle title={t("orders")} subtitle="From field to your doorstep" />{query.isLoading ? <StateView state="loading" /> : query.isError ? <StateView state="error" onRetry={() => void query.refetch()} /> : !query.data?.length ? <StateView state="empty" /> : query.data.map((o) => <Pressable key={o.id} onPress={() => router.push(`/order/${o.id}`)} style={s.card}><View style={s.row}><Text style={s.number}>#{o.number}</Text><Chip>{o.status.replaceAll("_", " ")}</Chip></View><Text style={s.muted}>{new Date(o.createdAt).toLocaleDateString()} · {o.items.length} items</Text><View style={s.row}><Text style={s.total}>₹{o.total}</Text><View style={s.track}><Text style={s.trackText}>{t("trackOrder")}</Text><Icon name="chevron-forward" size={17} /></View></View></Pressable>)}</ScrollView>; }
+const s = StyleSheet.create({ page: { padding: 18, paddingTop: 56, gap: 14 }, card: { backgroundColor: colors.white, borderRadius: radius.lg, padding: 18, gap: 13 }, row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, number: { color: colors.text, fontSize: 17, fontWeight: "800" }, muted: { color: colors.muted }, total: { fontWeight: "900", fontSize: 19, color: colors.text }, track: { flexDirection: "row", alignItems: "center" }, trackText: { color: colors.primary, fontWeight: "800" } });

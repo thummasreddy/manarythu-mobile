@@ -1,0 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { api } from "../src/api";
+import { Chip, Icon, StateView } from "../src/components/ui";
+import { colors, radius } from "../src/theme";
+export default function Farmers() { const query = useQuery({ queryKey: ["farmers"], queryFn: api.farmers }); if (query.isLoading) return <StateView state="loading" />; return <FlatList contentContainerStyle={s.page} data={query.data} keyExtractor={(f) => f.id} ListEmptyComponent={<StateView state="empty" />} renderItem={({ item: f }) => <Pressable onPress={() => router.push(`/farmer/${f.slug}`)} style={s.card}><Image source={{ uri: f.photoUrl }} style={s.image} /><View style={s.body}><Text style={s.name}>{f.displayName}</Text><Text style={s.farm}>{f.primaryFarm?.name}</Text><Text style={s.location}>{f.primaryFarm?.district}, {f.primaryFarm?.state}</Text><View style={s.row}><Chip>★ {f.ratingAvg}</Chip><Chip>{f.experienceYears} years</Chip></View></View><Icon name="chevron-forward" /></Pressable>} />; }
+const s = StyleSheet.create({ page: { padding: 16, gap: 13 }, card: { backgroundColor: colors.white, borderRadius: radius.lg, padding: 13, flexDirection: "row", alignItems: "center", gap: 13 }, image: { width: 84, height: 94, borderRadius: 20 }, body: { flex: 1, gap: 4 }, name: { fontWeight: "900", fontSize: 18, color: colors.text }, farm: { color: colors.primary, fontWeight: "700" }, location: { color: colors.muted, fontSize: 12 }, row: { flexDirection: "row", gap: 6, marginTop: 5 } });
