@@ -1,0 +1,102 @@
+{
+  "$schema": "https://manarythu.com/schemas/design-tokens/v1.json",
+  "name": "manarythu-design-tokens",
+  "version": "1.0.0",
+  "description": "Single source of truth for the ManaRythu design language. Web (Tailwind), Admin (Tailwind), Farmer (Tailwind) and Mobile (src/theme) all consume these values — edit here, then run each repo's sync script.",
+  "colors": {
+    "brand": {
+      "25": "#f6faf2",
+      "50": "#f1f8ec",
+      "100": "#dff2d3",
+      "150": "#c9e6b3",
+      "200": "#b0db93",
+      "300": "#8ecb6c",
+      "400": "#69b33f",
+      "500": "#4a8f2a",
+      "600": "#3a7223",
+      "700": "#2d5a1d",
+      "800": "#244818",
+      "900": "#1d3a15",
+      "950": "#11230d"
+    },
+    "cream": {
+      "25": "#fffefb",
+      "50": "#fffdf9",
+      "100": "#fef9ef",
+      "200": "#f9f0dc",
+      "300": "#f2e1c0",
+      "400": "#e8cda0"
+    },
+    "earth": {
+      "300": "#d6b58a",
+      "400": "#c29a67",
+      "500": "#a97e4a",
+      "600": "#8a6539",
+      "700": "#6e4f2c",
+      "800": "#5d4226"
+    },
+    "clay": {
+      "400": "#e07a5f",
+      "500": "#c85a3d",
+      "600": "#a8482e",
+      "700": "#873925"
+    },
+    "leaf": {
+      "200": "#a8e6d8",
+      "300": "#7dd3c0",
+      "400": "#4ec0a6",
+      "500": "#2ca88a",
+      "700": "#1f6f5a"
+    },
+    "semantic": {
+      "success": "#4a8f2a",
+      "warning": "#d88918",
+      "error": "#b83a36",
+      "info": "#2ca88a",
+      "background": "#fffdf9",
+      "surface": "#ffffff",
+      "border": "#dff2d3",
+      "textPrimary": "#1d3a15",
+      "textSecondary": "#66805d",
+      "disabled": "#b9c4b4"
+    }
+  },
+  "radius": {
+    "sm": "0.625rem",
+    "md": "1rem",
+    "lg": "1.5rem",
+    "2xl": "1.25rem",
+    "3xl": "1.75rem",
+    "4xl": "2.25rem",
+    "pill": "999px"
+  },
+  "shadows": {
+    "card": "0 1px 2px 0 rgb(29 58 21 / 0.04), 0 1px 3px -1px rgb(29 58 21 / 0.04)",
+    "card-hover": "0 20px 40px -16px rgb(29 58 21 / 0.18)",
+    "elevated": "0 8px 30px -8px rgb(29 58 21 / 0.14)",
+    "soft": "0 4px 20px -4px rgb(29 58 21 / 0.10)",
+    "inner": "inset 0 2px 6px 0 rgb(29 58 21 / 0.04)"
+  },
+  "typography": {
+    "fontSans": "Inter",
+    "fontDisplay": "Poppins",
+    "scale": {
+      "caption": "0.6875rem",
+      "label": "0.8125rem",
+      "body": "0.9375rem",
+      "bodyLarge": "1.0625rem",
+      "h3": "1.25rem",
+      "h2": "1.625rem",
+      "h1": "2.125rem",
+      "price": "1.0625rem"
+    }
+  },
+  "breakpoints": {
+    "xs": "320px",
+    "sm": "640px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px",
+    "2xl": "1440px"
+  }
+}
