@@ -1,6 +1,6 @@
 import { mocksEnabled, request } from "./client";
 import { addresses, categories, farmers, orders, products } from "./mock";
-import type { Address, Category, Farmer, Order, Product } from "./types";
+import type { Address, Cart, Category, Farmer, Order, Product } from "./types";
 const mock = async <T>(value: T) => { await new Promise((r) => setTimeout(r, 220)); return value; };
 const query = (params: Record<string, unknown>) => { const values = Object.entries(params).filter(([, v]) => v !== undefined && v !== ""); return values.length ? `?${values.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&")}` : ""; };
 export const api = {
@@ -12,9 +12,20 @@ export const api = {
   checkLocation: (pincode: string) => mocksEnabled ? mock({ serviceable: pincode.length === 6, pincode, city: "Hyderabad", state: "Telangana" }) : request<{ serviceable: boolean; pincode: string; city?: string; state?: string }>(`/locations/check${query({ pincode })}`),
   requestOtp: (phone: string) => mocksEnabled ? mock({ requestId: "local-request" }) : request<{ requestId: string }>("/auth/otp/request", { method: "POST", body: { phone } }),
   verifyOtp: (phone: string, otp: string) => mocksEnabled ? mock({ accessToken: "mock-access", refreshToken: "mock-refresh" }) : request<{ accessToken: string; refreshToken: string }>("/auth/otp/verify", { method: "POST", body: { phone, otp } }),
+  refreshSession: (refreshToken: string) => request<{ accessToken: string; refreshToken: string }>("/auth/refresh", { method: "POST", body: { refreshToken } }),
   orders: () => mocksEnabled ? mock(orders) : request<Order[]>("/orders", { authenticated: true }),
   order: (id: string) => mocksEnabled ? mock(orders.find((o) => o.id === id)!) : request<Order>(`/orders/${id}`, { authenticated: true }),
   addresses: () => mocksEnabled ? mock(addresses) : request<Address[]>("/customers/me/addresses", { authenticated: true }),
-  placeOrder: (body: unknown, key: string) => request<Order>("/orders", { method: "POST", body, authenticated: true, headers: { "Idempotency-Key": key } }),
+  addAddress: (body: Omit<Address, "id">) => request<Address>("/customers/me/addresses", { method: "POST", body, authenticated: true }),
+  updateAddress: (id: string, body: Omit<Address, "id">) => request<Address>(`/customers/me/addresses/${id}`, { method: "PATCH", body, authenticated: true }),
+  deleteAddress: (id: string) => request<void>(`/customers/me/addresses/${id}`, { method: "DELETE", authenticated: true }),
+  // Server cart — anonymous carts keyed by a client-generated UUID in X-Cart-Token,
+  // same contract as the web storefront.
+  cart: (token: string) => request<Cart>("/cart", { headers: { "X-Cart-Token": token } }),
+  addCartItem: (token: string, variantId: string, qty: number) => request<Cart>("/cart/items", { method: "POST", body: { variantId, qty }, headers: { "X-Cart-Token": token } }),
+  updateCartItem: (token: string, itemId: string, qty: number) => request<Cart>(`/cart/items/${itemId}`, { method: "PATCH", body: { qty }, headers: { "X-Cart-Token": token } }),
+  removeCartItem: (token: string, itemId: string) => request<Cart>(`/cart/items/${itemId}`, { method: "DELETE", headers: { "X-Cart-Token": token } }),
+  placeOrder: (body: { addressId: string; deliverySlot?: string; paymentMethod?: string }, key: string, cartToken: string) => request<Order>("/orders", { method: "POST", body, authenticated: true, headers: { "Idempotency-Key": key, "X-Cart-Token": cartToken } }),
 };
 export * from "./types";
+export { mocksEnabled } from "./client";
