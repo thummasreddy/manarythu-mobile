@@ -1,8 +1,3 @@
 /// <reference types="expo/types" />
 
-declare namespace NodeJS {
-  interface ProcessEnv {
-    EXPO_PUBLIC_API_URL?: string;
-    EXPO_PUBLIC_ENABLE_MOCKS?: "true" | "false";
-  }
-}
+// NOTE: This file should not be edited and should be in your git ignore
