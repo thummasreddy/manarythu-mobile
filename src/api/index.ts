@@ -1,12 +1,17 @@
 import { mocksEnabled, request } from "./client";
 import { addresses, categories, farmers, orders, products } from "./mock";
-import type { Address, Cart, Category, Farmer, Order, Product } from "./types";
+import type { Address, Cart, Category, Farmer, Order, Product, ProductDetail } from "./types";
+
+const toDetail = (p: Product): ProductDetail => {
+  const { defaultVariant, imageUrl, variants, ...rest } = p;
+  return { ...rest, images: p.images ?? (imageUrl ? [imageUrl] : []), variants: variants ?? [defaultVariant] };
+};
 const mock = async <T>(value: T) => { await new Promise((r) => setTimeout(r, 220)); return value; };
 const query = (params: Record<string, unknown>) => { const values = Object.entries(params).filter(([, v]) => v !== undefined && v !== ""); return values.length ? `?${values.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&")}` : ""; };
 export const api = {
   categories: () => mocksEnabled ? mock(categories) : request<Category[]>("/categories"),
   products: (params: { q?: string; category?: string; section?: string } = {}) => mocksEnabled ? mock(products.filter((p) => (!params.q || p.name.en.toLowerCase().includes(params.q.toLowerCase())) && (!params.category || p.categorySlug === params.category))) : request<Product[]>(`/products${query(params)}`),
-  product: (slug: string) => mocksEnabled ? mock(products.find((p) => p.slug === slug)!) : request<Product>(`/products/${slug}`),
+  product: (slug: string) => mocksEnabled ? mock(toDetail(products.find((p) => p.slug === slug)!)) : request<ProductDetail>(`/products/${slug}`),
   farmers: () => mocksEnabled ? mock(farmers) : request<Farmer[]>("/farmers"),
   farmer: (slug: string) => mocksEnabled ? mock(farmers.find((f) => f.slug === slug)!) : request<Farmer>(`/farmers/${slug}`),
   checkLocation: (pincode: string) => mocksEnabled ? mock({ serviceable: pincode.length === 6, pincode, city: "Hyderabad", state: "Telangana" }) : request<{ serviceable: boolean; pincode: string; city?: string; state?: string }>(`/locations/check${query({ pincode })}`),

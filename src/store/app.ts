@@ -49,6 +49,8 @@ interface AppState {
   ensureCartToken: () => Promise<string>;
   refreshCart: () => Promise<void>;
   addToCart: (product: Product, qty?: number) => Promise<void>;
+  /** Adds a specific variant (product detail screen, where the shopper picks one). */
+  addVariantToCart: (variantId: string, qty?: number, mockProductId?: string) => Promise<void>;
   setCartItemQty: (itemId: string, qty: number) => Promise<void>;
 }
 
@@ -93,6 +95,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ cartBusy: true });
     try {
       set({ serverCart: await api.addCartItem(token, product.defaultVariant.id, qty), cartBusy: false });
+    } catch (e) {
+      set({ cartBusy: false });
+      throw e;
+    }
+  },
+  addVariantToCart: async (variantId, qty = 1, mockProductId) => {
+    if (mocksEnabled) {
+      if (mockProductId) get().updateCart(mockProductId, (get().cart[mockProductId] ?? 0) + qty);
+      return;
+    }
+    const token = await get().ensureCartToken();
+    set({ cartBusy: true });
+    try {
+      set({ serverCart: await api.addCartItem(token, variantId, qty), cartBusy: false });
     } catch (e) {
       set({ cartBusy: false });
       throw e;

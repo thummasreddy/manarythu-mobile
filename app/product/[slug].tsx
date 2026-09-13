@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -6,5 +7,83 @@ import { api } from "../../src/api";
 import { Button, Chip, Icon, StateView } from "../../src/components/ui";
 import { useAppStore } from "../../src/store/app";
 import { colors, radius } from "../../src/theme";
-export default function ProductDetail() { const { slug } = useLocalSearchParams<{ slug: string }>(); const { t, i18n } = useTranslation(); const locale = i18n.language === "te" ? "te" : "en"; const query = useQuery({ queryKey: ["product", slug], queryFn: () => api.product(slug) }); const add = useAppStore((s) => s.addToCart); if (query.isLoading) return <StateView state="loading" />; if (!query.data) return <StateView state="error" onRetry={() => void query.refetch()} />; const p = query.data; return <View style={s.page}><ScrollView><Image source={{ uri: p.images?.[0] ?? p.imageUrl }} style={s.image} /><View style={s.body}><View style={s.chips}><Chip>{p.organicCertified ? t("organic") : t("natural")}</Chip><Chip>{t("harvest")}</Chip></View><Text accessibilityRole="header" style={s.title}>{p.name[locale]}</Text><Text style={s.rating}>★ {p.ratingAvg} ({p.ratingCount})</Text><Text style={s.description}>{p.description?.[locale] ?? "Grown with care and delivered fresh from the farm."}</Text><Text style={s.section}>Choose quantity</Text><View style={s.chips}>{(p.variants ?? [p.defaultVariant]).map((v) => <Chip key={v.id} active={v.id === p.defaultVariant.id}>{v.label} · ₹{v.sellingPrice}</Chip>)}</View><Pressable onPress={() => router.push(`/farmer/${p.farmer.farmerSlug}`)} style={s.farmer}><View style={s.farmerIcon}><Icon name="person" color={colors.white} /></View><View style={{ flex: 1 }}><Text style={s.muted}>{t("by")}</Text><Text style={s.farmerName}>{p.farmer.farmerName}</Text><Text style={s.muted}>{p.farmer.farmName} · {p.farmer.district}</Text></View><Icon name="chevron-forward" /></Pressable></View></ScrollView><View style={s.footer}><View><Text style={s.price}>₹{p.defaultVariant.sellingPrice}</Text><Text style={s.muted}>{p.defaultVariant.label}</Text></View><View style={{ flex: 1 }}><Button onPress={() => void add(p)}>{t("addToCart")}</Button></View></View></View>; }
-const s = StyleSheet.create({ page: { flex: 1 }, image: { width: "100%", height: 320, backgroundColor: colors.primarySoft }, body: { padding: 20, gap: 14 }, chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, title: { fontSize: 28, fontWeight: "900", color: colors.text }, rating: { color: colors.warning, fontWeight: "800" }, description: { color: colors.muted, fontSize: 15, lineHeight: 23 }, section: { color: colors.text, fontSize: 18, fontWeight: "800", marginTop: 8 }, farmer: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.cream, borderRadius: radius.lg, padding: 15, marginTop: 8 }, farmerIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" }, farmerName: { fontWeight: "800", color: colors.text, marginVertical: 2 }, muted: { color: colors.muted, fontSize: 12 }, footer: { flexDirection: "row", padding: 16, paddingBottom: 28, alignItems: "center", gap: 20, backgroundColor: colors.white, borderTopColor: colors.border, borderTopWidth: 1 }, price: { fontSize: 22, fontWeight: "900", color: colors.text } });
+
+export default function ProductDetail() {
+  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "te" ? "te" : "en";
+  const query = useQuery({ queryKey: ["product", slug], queryFn: () => api.product(slug) });
+  const addVariant = useAppStore((s) => s.addVariantToCart);
+  const [variantId, setVariantId] = useState<string | null>(null);
+
+  if (query.isLoading) return <StateView state="loading" />;
+  if (query.isError || !query.data) return <StateView state="error" onRetry={() => void query.refetch()} />;
+
+  const p = query.data;
+  const variants = p.variants ?? [];
+  const selected = variants.find((v) => v.id === variantId) ?? variants[0];
+
+  return (
+    <View style={s.page}>
+      <ScrollView>
+        <Image source={{ uri: p.images?.[0] }} style={s.image} accessibilityLabel={p.name[locale]} />
+        <View style={s.body}>
+          <View style={s.chips}>
+            <Chip>{p.organicCertified ? t("organic") : t("natural")}</Chip>
+            <Chip>{t("harvest")}</Chip>
+          </View>
+          <Text accessibilityRole="header" style={s.title}>{p.name[locale]}</Text>
+          <Text style={s.rating}>★ {p.ratingAvg} ({p.ratingCount})</Text>
+          <Text style={s.description}>{p.description?.[locale] ?? ""}</Text>
+          {variants.length > 0 && (
+            <>
+              <Text style={s.section}>{t("chooseQuantity")}</Text>
+              <View style={s.chips}>
+                {variants.map((v) => (
+                  <Pressable
+                    key={v.id}
+                    onPress={() => setVariantId(v.id)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: v.id === selected?.id, disabled: !v.inStock }}
+                    disabled={!v.inStock}
+                    style={!v.inStock && s.variantDisabled}
+                  >
+                    <Chip active={v.id === selected?.id}>{v.label} · ₹{v.sellingPrice}</Chip>
+                  </Pressable>
+                ))}
+              </View>
+            </>
+          )}
+          <Pressable onPress={() => router.push(`/farmer/${p.farmer.farmerSlug}`)} style={s.farmer}>
+            <View style={s.farmerIcon}><Icon name="person" color={colors.white} /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.muted}>{t("by")}</Text>
+              <Text style={s.farmerName}>{p.farmer.farmerName}</Text>
+              <Text style={s.muted}>{p.farmer.farmName} · {p.farmer.district}</Text>
+            </View>
+            <Icon name="chevron-forward" />
+          </Pressable>
+        </View>
+      </ScrollView>
+      <View style={s.footer}>
+        <View>
+          <View style={s.priceRow}>
+            <Text style={s.price}>₹{selected?.sellingPrice ?? 0}</Text>
+            {selected && selected.savings > 0 && <Text style={s.mrp}>₹{selected.mrp}</Text>}
+          </View>
+          <Text style={s.muted}>{selected?.label ?? ""}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button
+            disabled={!selected || !selected.inStock}
+            onPress={() => selected && void addVariant(selected.id, selected.minOrderQty || 1, p.id)}
+          >
+            {selected && !selected.inStock ? t("outOfStock") : t("addToCart")}
+          </Button>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const s = StyleSheet.create({ page: { flex: 1 }, image: { width: "100%", height: 320, backgroundColor: colors.primarySoft }, body: { padding: 20, gap: 14 }, chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, variantDisabled: { opacity: .45 }, title: { fontSize: 28, fontWeight: "900", color: colors.text }, rating: { color: colors.warning, fontWeight: "800" }, description: { color: colors.muted, fontSize: 15, lineHeight: 23 }, section: { color: colors.text, fontSize: 18, fontWeight: "800", marginTop: 8 }, farmer: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.cream, borderRadius: radius.lg, padding: 15, marginTop: 8 }, farmerIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" }, farmerName: { fontWeight: "800", color: colors.text, marginVertical: 2 }, muted: { color: colors.muted, fontSize: 12 }, footer: { flexDirection: "row", padding: 16, paddingBottom: 28, alignItems: "center", gap: 20, backgroundColor: colors.white, borderTopColor: colors.border, borderTopWidth: 1 }, priceRow: { flexDirection: "row", alignItems: "baseline", gap: 6 }, price: { fontSize: 22, fontWeight: "900", color: colors.text }, mrp: { fontSize: 14, color: colors.muted, textDecorationLine: "line-through" } });

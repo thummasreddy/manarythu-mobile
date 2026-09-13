@@ -6,10 +6,27 @@
     "orientation": "portrait",
     "scheme": "manarythu",
     "userInterfaceStyle": "light",
-    "plugins": ["expo-router", "expo-localization", "expo-secure-store"],
-    "experiments": { "typedRoutes": true },
-    "ios": { "supportsTablet": true, "bundleIdentifier": "com.manarythu.customer" },
-    "android": { "package": "com.manarythu.customer", "adaptiveIcon": { "backgroundColor": "#FEF9EF" } },
-    "web": { "bundler": "metro" }
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      "expo-secure-store",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.manarythu.customer"
+    },
+    "android": {
+      "package": "com.manarythu.customer",
+      "adaptiveIcon": {
+        "backgroundColor": "#FEF9EF"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
   }
 }
